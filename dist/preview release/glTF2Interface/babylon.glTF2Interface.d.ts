@@ -1082,6 +1082,15 @@ declare module BABYLON.GLTF2 {
     }
 
     /**
+     * Interfaces from the MSFT_texture_dds extension
+     */
+
+    /** @hidden */
+    interface IMSFTTextureDDS {
+        source: number;
+    }
+
+    /**
      * Interfaces from the KHR_texture_transform extension
      */
 
