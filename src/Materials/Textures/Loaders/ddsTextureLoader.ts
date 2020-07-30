@@ -18,10 +18,11 @@ export class _DDSTextureLoader implements IInternalTextureLoader {
     /**
      * This returns if the loader support the current file information.
      * @param extension defines the file extension of the file being loaded
+     * @param mimeType defines the optional mime type of the file being loaded
      * @returns true if the loader can load the specified file
      */
-    public canLoad(extension: string): boolean {
-        return StringTools.EndsWith(extension, ".dds");
+    public canLoad(extension: string, mimeType?: string): boolean {
+        return StringTools.EndsWith(extension, ".dds") || mimeType === "image/vnd-ms.dds";
     }
 
     /**

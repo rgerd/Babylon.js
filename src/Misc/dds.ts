@@ -169,8 +169,18 @@ export class DDSTools {
      * @returns the DDS information
      */
     public static GetDDSInfo(data: ArrayBufferView): DDSInfo {
-        var header = new Int32Array(data.buffer, data.byteOffset, headerLengthInt);
-        var extendedHeader = new Int32Array(data.buffer, data.byteOffset, headerLengthInt + 4);
+        let header: Int32Array;
+        let extendedHeader: Int32Array;
+
+        if (data.byteOffset % 4 !== 0) {
+            let temp = new Int8Array(data.buffer, data.byteOffset);
+
+            header = new Int32Array(temp, 0, headerLengthInt);
+            extendedHeader = new Int32Array(temp, 0, headerLengthInt + 4);
+        } else {
+            header = new Int32Array(data.buffer, data.byteOffset, headerLengthInt);
+            extendedHeader = new Int32Array(data.buffer, data.byteOffset, headerLengthInt + 4);
+        }
 
         var mipmapCount = 1;
         if (header[off_flags] & DDSD_MIPMAPCOUNT) {
@@ -452,7 +462,17 @@ export class DDSTools {
         }
         var ext = engine.getCaps().s3tc;
 
-        var header = new Int32Array(data.buffer, data.byteOffset, headerLengthInt);
+        let header: Int32Array;
+
+        if (data.byteOffset % 4 !== 0) {
+            let temp = new Int8Array(data.buffer);
+            temp = temp.slice(data.byteOffset);
+
+            header = new Int32Array(temp, 0, headerLengthInt);
+        } else {
+            header = new Int32Array(data.buffer, data.byteOffset, headerLengthInt);
+        }
+
         var fourCC: number, width: number, height: number, dataLength: number = 0, dataOffset: number;
         var byteArray: Uint8Array, mipmapCount: number, mip: number;
         let internalCompressedFormat = 0;
