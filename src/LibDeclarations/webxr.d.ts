@@ -191,6 +191,7 @@ interface XRTransientInputHitTestOptionsInit {
 
 interface XRAnchor {
     anchorSpace: XRSpace;
+    isTracking: boolean;
     delete(): void;
 }
 

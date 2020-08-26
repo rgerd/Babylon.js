@@ -266,6 +266,7 @@ export class WebXRAnchorSystem extends WebXRAbstractFeature {
                         // anchors update every frame
                         this._updateAnchorWithXRFrame(xrAnchor, anchor, frame);
                         if (anchor.attachedNode) {
+                            anchor.attachedNode.setEnabled(anchor.xrAnchor.isTracking);
                             anchor.attachedNode.rotationQuaternion = anchor.attachedNode.rotationQuaternion || new Quaternion();
                             anchor.transformationMatrix.decompose(anchor.attachedNode.scaling, anchor.attachedNode.rotationQuaternion, anchor.attachedNode.position);
                         }
