@@ -41,7 +41,7 @@ uniform float _Blob_Pulse_2_;
 uniform float _Blob_Fade_2_;
 uniform vec3 _Active_Face_Dir_;
 uniform vec3 _Active_Face_Up_;
-uniform bool _Enable_Fade_;
+uniform bool Enable_Fade;
 uniform float _Fade_Width_;
 uniform bool _Smooth_Active_Face_;
 uniform bool _Show_Frame_;
@@ -149,24 +149,27 @@ void To_XYZ_B46(
 void main()
 {
     float NotEdge_Q35;
-    #if _Enable_Fade_
+    #if Enable_Fade
       Holo_Edge_Fragment_B35(vColor,_Fade_Width_,NotEdge_Q35);
     #else
       NotEdge_Q35 = 1;
     #endif
 
+    // vec4 Blob_Color_Q39;
+    // Blob_Fragment_B39(vUV,vTangent,_Blob_Texture_,Blob_Color_Q39);
     vec4 Blob_Color_Q39;
-    Blob_Fragment_B39(vUV,vTangent,_Blob_Texture_,Blob_Color_Q39);
+    float k = dot(vUV,vUV);
+    Blob_Color_Q39 = vTangent.y * texture(_Blob_Texture_,vec2(vec2(sqrt(k),vTangent.x).x,1.0-vec2(sqrt(k),vTangent.x).y))*(1.0-clamp(k, 0.0, 1.0));
 
     // Is_Quad (#24)
     float Is_Quad_Q24;
     Is_Quad_Q24=vNormal.z;
     
     // Pick_Local_Or_Global_Left (#41)
-    vec3 Blob_Position_Q41 =  (Use_Global_Left_Index ? Global_Left_Index_Tip_Position.xyz :  _Blob_Position_);
+    vec3 Blob_Position_Q41 =  mix(_Blob_Position_, Global_Left_Index_Tip_Position.xyz, float(Use_Global_Left_Index));
 
     // Pick_Local_Or_Global_Right (#42)
-    vec3 Blob_Position_Q42 =  (Use_Global_Right_Index ? Global_Right_Index_Tip_Position.xyz :  _Blob_Position_2_);
+    vec3 Blob_Position_Q42 =  mix(_Blob_Position_2_, Global_Right_Index_Tip_Position.xyz, float(Use_Global_Right_Index));
 
     float X_Q46;
     float Y_Q46;
@@ -184,7 +187,7 @@ void main()
 
     // Conditional_Color (#22)
     vec4 Result_Q22;
-    Result_Q22 = _Show_Frame_ ? vec4(0.3,0.3,0.3,0.3) : Wire_Or_Blob_Q23;
+    Result_Q22 = mix(Wire_Or_Blob_Q23, vec4(0.3,0.3,0.3,0.3), float(_Show_Frame_));
     
     // Scale_Color (#37)
     vec4 Final_Color_Q37 = NotEdge_Q35 * Result_Q22;

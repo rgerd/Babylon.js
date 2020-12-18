@@ -198,15 +198,14 @@ void Holo_Edge_Vertex_B44(
     
     vec2 flip = (UV-vec2(0.5,0.5));
     float udot = dot(Incident,Tangent)*flip.x*NdotI;
-    float uval = (udot>0.0 ? 0.0 : 1.0);
+    float uval = 1.0 - float(udot > 0.0);
     
     float vdot = -dot(Incident,Bitangent)*flip.y*NdotI;
-    float vval = (vdot>0.0 ? 0.0 : 1.0);
+    float vval = 1.0 - float(vdot > 0.0);
     
-    if (Smooth_Active_Face && Active>0.0) {
-         float d = 1.0; //abs(dot(Normal,Incident));
-         uval=max(d,uval); vval=max(d,vval);
-    }
+    float Smooth_And_Active = step(1.0, float(Smooth_Active_Face && Active > 0.0));
+    uval = mix(uval, max(1.0,uval), Smooth_And_Active); 
+    vval = mix(vval, max(1.0,vval), Smooth_And_Active);
     Holo_Edges = vec4(1.0,1.0,1.0,1.0)-vec4(uval*UV.x,uval*(1.0-UV.x),vval*UV.y,vval*(1.0-UV.y));
 }
 //BLOCK_END Holo_Edge_Vertex
@@ -247,8 +246,8 @@ void Choose_Blob_B38(
 {
     Position = Position1*(1.0-Vx_Color.g)+Vx_Color.g*Position2;
     
-    float b1 = Blob_Enable_1 ? 1.0 : 0.0;
-    float b2 = Blob_Enable_2 ? 1.0 : 0.0;
+    float b1 = float(Blob_Enable_1);
+    float b2 = float(Blob_Enable_2);
     Blob_Enable = b1+(b2-b1)*Vx_Color.g;
     
     Pulse = Blob_Pulse_1*(1.0-Vx_Color.g)+Vx_Color.g*Blob_Pulse_2;
@@ -401,20 +400,20 @@ void main()
     Active_Face_Center_Q49 = (world * vec4(_Active_Face_Dir_*0.5,1.0)).xyz;
     
     // Pick_Local_Or_Global_Left (#41)
-    vec3 Blob_Position_Q41 =  (Use_Global_Left_Index ? Global_Left_Index_Tip_Position.xyz :  _Blob_Position_);
+    vec3 Blob_Position_Q41 =  mix(_Blob_Position_, Global_Left_Index_Tip_Position.xyz, float(Use_Global_Left_Index));
 
     // Pick_Local_Or_Global_Right (#42)
-    vec3 Blob_Position_Q42 =  (Use_Global_Right_Index ? Global_Right_Index_Tip_Position.xyz :  _Blob_Position_2_);
+    vec3 Blob_Position_Q42 =  mix(_Blob_Position_2_, Global_Right_Index_Tip_Position.xyz, float(Use_Global_Right_Index));
 
     // Object_To_World_Dir (#64)
     vec3 Active_Face_Dir_Q64 = normalize((world * vec4(_Active_Face_Dir_,0.0)).xyz);
 
     // Relative_Scale (#57)
     float Relative_Scale_Q57;
-    #if _Relative_Width_
+    #if Relative_Width
       Relative_Scale_Q57 = length((world * vec4(vec3(0,1,0),0.0)).xyz);
     #else
-      Relative_Scale_Q57 = 1;
+      Relative_Scale_Q57 = 1.0;
     #endif
 
     // Object_To_World_Dir (#30)
