@@ -14,12 +14,12 @@ import { Mesh } from "babylonjs/Meshes/mesh";
 import { Scene } from "babylonjs/scene";
 import { _TypeStore } from 'babylonjs/Misc/typeStore';
 import { Color3, Color4 } from 'babylonjs/Maths/math.color';
-import { BlobTextureData } from './fluentBlob';
+// import { BlobTextureData } from './fluentBlob';
 
 import "./fluent.fragment";
 import "./fluent.vertex";
 import { EffectFallbacks } from 'babylonjs/Materials/effectFallbacks';
-import { Texture } from "babylonjs";
+import { Constants, Texture } from "babylonjs";
 
 class FluentMaterialDefines extends MaterialDefines {
     public Relative_Width = true;
@@ -84,11 +84,11 @@ export class FluentMaterial extends PushMaterial {
     public SmoothActiveFace = true ? 1.0 : 0.0;
 
     // "Debug"
-    public ShowFrame = false ? 1.0 : 0.0;
+    public ShowFrame = false;
 
     // Global inputs
-    public UseGlobalLeftIndex = 1.0;
-    public UseGlobalRightIndex = 1.0;
+    public UseGlobalLeftIndex = true;
+    public UseGlobalRightIndex = true;
 
     public GlobalLeftIndexTipPosition = new Vector4(0.5, 0.0, -0.55, 1.0);
     public GlobalRightIndexTipPosition = new Vector4(0.0, 0.0, 0.0, 1.0);
@@ -103,15 +103,17 @@ export class FluentMaterial extends PushMaterial {
 
     constructor(name: string, scene: Scene) {
         super(name, scene);
+        this.alphaMode = Constants.ALPHA_ADD;
         this.disableDepthWrite = true;
         this.backFaceCulling = false;
 
-        this._blobTexture = Texture.CreateFromBase64String(
+        this._blobTexture = new Texture(null, null);
+        /*Texture.CreateFromBase64String(
             BlobTextureData,
             "fluentBlobTexture",
             scene,
             true, false,
-            Texture.NEAREST_SAMPLINGMODE);
+            Texture.NEAREST_SAMPLINGMODE);*/
     }
 
     public needAlphaBlending(): boolean {
@@ -356,7 +358,7 @@ export class FluentMaterial extends PushMaterial {
         this._activeEffect.setFloat("_Smooth_Active_Face_", this.SmoothActiveFace);
 
         // "Debug"
-        this._activeEffect.setFloat("_Show_Frame_", this.ShowFrame);
+        this._activeEffect.setFloat("_Show_Frame_", this.ShowFrame ? 1.0 : 0.0);
 
 
         // Global inputs
