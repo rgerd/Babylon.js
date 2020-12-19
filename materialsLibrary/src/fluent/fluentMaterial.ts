@@ -14,7 +14,7 @@ import { Mesh } from "babylonjs/Meshes/mesh";
 import { Scene } from "babylonjs/scene";
 import { _TypeStore } from 'babylonjs/Misc/typeStore';
 import { Color3, Color4 } from 'babylonjs/Maths/math.color';
-// import { BlobTextureData } from './fluentBlob';
+import { BlobTextureData } from './fluentBlob';
 
 import "./fluent.fragment";
 import "./fluent.vertex";
@@ -90,30 +90,31 @@ export class FluentMaterial extends PushMaterial {
     public UseGlobalLeftIndex = true;
     public UseGlobalRightIndex = true;
 
-    public GlobalLeftIndexTipPosition = new Vector4(0.5, 0.0, -0.55, 1.0);
-    public GlobalRightIndexTipPosition = new Vector4(0.0, 0.0, 0.0, 1.0);
+    public GlobalLeftIndexTipPosition = Vector3.Zero();
+    public GlobalRightIndexTipPosition = Vector3.Zero();
 
-    public GlobalLeftThumbTipPosition = new Vector4(0.5, 0.0, -0.55, 1.0);
-    public GlobalRightThumbTipPosition = new Vector4(0.0, 0.0, 0.0, 1.0);
+    public GlobalLeftThumbTipPosition = Vector3.Zero();
+    public GlobalRightThumbTipPosition = Vector3.Zero();
 
     public GlobalLeftIndexTipProximity = 0.0;
     public GlobalRightIndexTipProximity = 0.0;
 
-    private _blobTexture: Texture;
+    private _blobTexture: Nullable<Texture>;
 
-    constructor(name: string, scene: Scene) {
+    constructor(name: string, scene: Scene, useBlobTexture = false) {
         super(name, scene);
         this.alphaMode = Constants.ALPHA_ADD;
         this.disableDepthWrite = true;
         this.backFaceCulling = false;
 
-        this._blobTexture = new Texture(null, null);
-        /*Texture.CreateFromBase64String(
-            BlobTextureData,
-            "fluentBlobTexture",
-            scene,
-            true, false,
-            Texture.NEAREST_SAMPLINGMODE);*/
+        this._blobTexture = useBlobTexture
+            ? Texture.CreateFromBase64String(
+                BlobTextureData,
+                "fluentBlobTexture",
+                scene,
+                true, false,
+                Texture.NEAREST_SAMPLINGMODE)
+            : null;
     }
 
     public needAlphaBlending(): boolean {
@@ -306,7 +307,9 @@ export class FluentMaterial extends PushMaterial {
         this._activeEffect.setVector3("cameraPosition", scene.activeCamera!.position);
 
         // "Blob Texture"
-        this._activeEffect.setTexture("_Blob_Texture_", this._blobTexture);
+        if (this._blobTexture != null) {
+            this._activeEffect.setTexture("_Blob_Texture_", this._blobTexture);
+        }
 
         // "Wireframe"
         this._activeEffect.setFloat("_Edge_Width_", this.EdgeWidth);
@@ -360,19 +363,25 @@ export class FluentMaterial extends PushMaterial {
         // "Debug"
         this._activeEffect.setFloat("_Show_Frame_", this.ShowFrame ? 1.0 : 0.0);
 
-
         // Global inputs
         this._activeEffect.setFloat("Use_Global_Left_Index", this.UseGlobalLeftIndex ? 1.0 : 0.0);
         this._activeEffect.setFloat("Use_Global_Right_Index", this.UseGlobalRightIndex ? 1.0 : 0.0);
 
-        this._activeEffect.setVector4("Global_Left_Index_Tip_Position", this.GlobalLeftIndexTipPosition);
-        this._activeEffect.setVector4("Global_Right_Index_Tip_Position", this.GlobalRightIndexTipPosition);
-
-        this._activeEffect.setVector4("Global_Left_Thumb_Tip_Position", this.GlobalLeftThumbTipPosition);
-        this._activeEffect.setVector4("Global_Right_Thumb_Tip_Position", this.GlobalRightThumbTipPosition);
+        this._activeEffect.setVector4("Global_Left_Index_Tip_Position",
+            new Vector4(
+                this.GlobalLeftIndexTipPosition.x,
+                this.GlobalLeftIndexTipPosition.y,
+                this.GlobalLeftIndexTipPosition.z,
+                1.0));
+        this._activeEffect.setVector4("Global_Right_Index_Tip_Position",
+            new Vector4(
+                this.GlobalRightIndexTipPosition.x,
+                this.GlobalRightIndexTipPosition.y,
+                this.GlobalRightIndexTipPosition.z,
+                1.0));
 
         this._activeEffect.setFloat("Global_Left_Index_Tip_Proximity", this.GlobalLeftIndexTipProximity);
-        this._activeEffect.setFloat("Global_Right_Index_Tip_Proximity", this.GlobalLeftIndexTipProximity);
+        this._activeEffect.setFloat("Global_Right_Index_Tip_Proximity", this.GlobalRightIndexTipProximity);
 
         this._afterBind(mesh, this._activeEffect);
     }
