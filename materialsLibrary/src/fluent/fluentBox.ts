@@ -17,7 +17,7 @@ const vertexTangents = [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1
 
 export class FluentBox extends Mesh
 {
-    constructor(name: string, scene: Scene)
+    constructor(name: string, scene: Scene, useBlobTexture = true)
     {
         super(name, scene);
         const vertexData = new VertexData();
@@ -30,6 +30,6 @@ export class FluentBox extends Mesh
 
         vertexData.applyToMesh(this);
 
-        this.material = new FluentMaterial(`${name}_luminousMaterial`, scene);
+        this.material = new FluentMaterial(`${name}_luminousMaterial`, scene, useBlobTexture);
     }
 }

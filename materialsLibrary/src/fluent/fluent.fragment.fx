@@ -45,6 +45,7 @@ uniform bool Enable_Fade;
 uniform float _Fade_Width_;
 uniform bool _Smooth_Active_Face_;
 uniform bool _Show_Frame_;
+uniform bool _Use_Blob_Texture_;
 
 uniform bool Use_Global_Left_Index;
 uniform bool Use_Global_Right_Index;
@@ -160,8 +161,8 @@ void main()
     vec4 Blob_Color_Q39;
     float k = dot(vUV,vUV);
     vec2 blobTextureCoord = vec2(vec2(sqrt(k),vTangent.x).x,1.0-vec2(sqrt(k),vTangent.x).y);
-    vec4 blobColor = texture(_Blob_Texture_,blobTextureCoord);
-    Blob_Color_Q39 = vTangent.y * vec4(1.0, 1.0, 1.0, 1.0) * step(1.0 - vTangent.x, clamp(sqrt(k) + 0.1, 0.0, 1.0)) * (1.0-clamp(k, 0.0, 1.0));
+    vec4 blobColor = mix(vec4(1.0, 1.0, 1.0, 1.0) * step(1.0 - vTangent.x, clamp(sqrt(k) + 0.1, 0.0, 1.0)), texture(_Blob_Texture_,blobTextureCoord), float(_Use_Blob_Texture_));
+    Blob_Color_Q39 = vTangent.y * blobColor * (1.0-clamp(k, 0.0, 1.0));
 
     // Is_Quad (#24)
     float Is_Quad_Q24;

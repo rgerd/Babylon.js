@@ -101,18 +101,18 @@ export class FluentMaterial extends PushMaterial {
 
     private _blobTexture: Nullable<Texture>;
 
-    constructor(name: string, scene: Scene, useBlobTexture = false) {
+    constructor(name: string, scene: Scene, public UseBlobTexture = true) {
         super(name, scene);
         this.alphaMode = Constants.ALPHA_ADD;
         this.disableDepthWrite = true;
         this.backFaceCulling = false;
 
-        this._blobTexture = useBlobTexture
+        this._blobTexture = this.UseBlobTexture
             ? Texture.CreateFromBase64String(
                 BlobTextureData,
                 "fluentBlobTexture",
                 scene,
-                true, false,
+                true, true,
                 Texture.NEAREST_SAMPLINGMODE)
             : null;
     }
@@ -242,6 +242,7 @@ export class FluentMaterial extends PushMaterial {
                 "_Fade_Width_",
                 "_Smooth_Active_Face_",
                 "_Show_Frame_",
+                "_Use_Blob_Texture_",
 
                 "Use_Global_Left_Index",
                 "Use_Global_Right_Index",
@@ -362,6 +363,7 @@ export class FluentMaterial extends PushMaterial {
 
         // "Debug"
         this._activeEffect.setFloat("_Show_Frame_", this.ShowFrame ? 1.0 : 0.0);
+        this._activeEffect.setFloat("_Use_Blob_Texture_", this.UseBlobTexture ? 1.0 : 0.0);
 
         // Global inputs
         this._activeEffect.setFloat("Use_Global_Left_Index", this.UseGlobalLeftIndex ? 1.0 : 0.0);
