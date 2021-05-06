@@ -4,6 +4,7 @@
 * There are a couple changes I had to make due to BabylonNative bugs (namely inlining a function and replacing a ternary) that have issues assigned to them and are not things that need to be changed on the Hushed side.
 
 [Updated material template](https://github.com/rgerd/Babylon.js/blob/fluent-backplate-mat-diff/Push_Material_Template.hushTemplate)
+
 [Updated hush_translate.h](https://github.com/rgerd/Babylon.js/blob/fluent-backplate-mat-diff/hush_translate.h)
 
 ## Needs
