@@ -3,6 +3,9 @@
 * The shader being ported in this case is `hushed\shaders\Bondi_Materials\Current\Rounded_Thick_Iridescent_Map.hush`
 * There are a couple changes I had to make due to BabylonNative bugs (namely inlining a function and replacing a ternary) that have issues assigned to them and are not things that need to be changed on the Hushed side.
 
+[Updated material template](https://github.com/rgerd/Babylon.js/blob/fluent-backplate-mat-diff/Push_Material_Template.hushTemplate)
+[Updated hush_translate.h](https://github.com/rgerd/Babylon.js/blob/fluent-backplate-mat-diff/hush_translate.h)
+
 ## Needs
 * Materials in BabylonJS use a material definitions block, so we need a macro for exporting those definitions in javascript as member variables. [Diff](https://github.com/rgerd/Babylon.js/commit/f50ecbe1eb7780874bbccbb8cbe5521dd2c32537#diff-8ae9bbdff5fa682652abe828f8f911ed5202defd9a0e19b50ff7ac6453274af2L2)
 * Need to include shared uniforms in the `HUSH_INSERT_UNIFORMS` macro. [Diff](https://github.com/rgerd/Babylon.js/commit/f50ecbe1eb7780874bbccbb8cbe5521dd2c32537#diff-8ae9bbdff5fa682652abe828f8f911ed5202defd9a0e19b50ff7ac6453274af2R177) 
