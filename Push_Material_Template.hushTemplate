@@ -1,0 +1,393 @@
+/** BEGIN VERTEX SHADER */
+uniform mat4 world;
+uniform mat4 viewProjection;
+uniform vec3 cameraPosition;
+
+attribute vec3 position;
+HUSH_IF USED(Vertex_Globals,Normal)||USED(Vertex_Globals,Binormal)
+attribute vec3 normal;
+HUSH_END
+HUSH_IF USED(Vertex_Globals,UV)
+attribute vec2 uv;
+HUSH_END
+HUSH_IF USED(Vertex_Globals,Tangent)||USED(Vertex_Globals,Binormal)
+attribute vec3 tangent;
+HUSH_END
+HUSH_IF USED(Vertex_Globals,Color)
+attribute vec4 color;
+HUSH_END
+
+HUSH_INSERT_PARM_VAR
+HUSH_INSERT_SHARED_PARM_VAR
+
+HUSH_IF MACRO(Global_Input)==1
+uniform bool Use_Global_Left_Index;
+uniform bool Use_Global_Right_Index;
+uniform vec4 Global_Left_Index_Tip_Position;
+uniform vec4 Global_Right_Index_Tip_Position;
+uniform vec4 Global_Left_Thumb_Tip_Position;
+uniform vec4 Global_Right_Thumb_Tip_Position;
+uniform float  Global_Left_Index_Tip_Proximity;
+uniform float  Global_Right_Index_Tip_Proximity;
+HUSH_END
+
+HUSH_IF USED(Frag_Globals,Position)
+varying vec3 vPosition;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Normal)
+varying vec3 vNormal;
+HUSH_END
+HUSH_IF USED(Frag_Globals,UV)
+varying vec2 vUV;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Tangent)
+varying vec3 vTangent;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Binormal)
+varying vec3 vBinormal;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Color)
+varying vec4 vColor;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra1)
+varying vec4 vExtra1;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra2)
+varying vec4 vExtra2;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra3)
+varying vec4 vExtra3;
+HUSH_END
+
+HUSH_INSERT_PASS_FUNCTIONS Vertex_Output
+
+void main()
+{
+    HUSH_INSERT_PASS_CODE Vertex_Output
+    gl_Position = viewProjection * vec4(Position,1);
+HUSH_IF USED(Frag_Globals,Position)
+    vPosition = Position;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Normal)
+    vNormal = Normal;
+HUSH_END
+HUSH_IF USED(Frag_Globals,UV)
+    vUV = UV;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Tangent)
+    vTangent = Tangent;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Binormal)
+    vBinormal = Binormal;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Color)
+    vColor = Color;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra1)
+    vExtra1 = Extra1;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra2)
+    vExtra2 = Extra2;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra3)
+    vExtra3 = Extra3;
+HUSH_END
+}
+/** END VERTEX SHADER */
+
+/** BEGIN FRAGMENT SHADER */
+uniform vec3 cameraPosition;
+
+HUSH_IF USED(Frag_Globals,Position)
+varying vec3 vPosition;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Normal)
+varying vec3 vNormal;
+HUSH_END
+HUSH_IF USED(Frag_Globals,UV)
+varying vec2 vUV;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Tangent)
+varying vec3 vTangent;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Binormal)
+varying vec3 vBinormal;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Color)
+varying vec4 vColor;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra1)
+varying vec4 vExtra1;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra2)
+varying vec4 vExtra2;
+HUSH_END
+HUSH_IF USED(Frag_Globals,Extra3)
+varying vec4 vExtra3;
+HUSH_END
+
+HUSH_INSERT_PARM_VAR
+HUSH_INSERT_SHARED_PARM_VAR
+
+HUSH_IF MACRO(Global_Input)==1
+uniform bool Use_Global_Left_Index;
+uniform bool Use_Global_Right_Index;
+uniform vec4 Global_Left_Index_Tip_Position;
+uniform vec4 Global_Right_Index_Tip_Position;
+uniform vec4 Global_Left_Thumb_Tip_Position;
+uniform vec4 Global_Right_Thumb_Tip_Position;
+uniform float  Global_Left_Index_Tip_Proximity;
+uniform float  Global_Right_Index_Tip_Proximity;
+HUSH_END
+
+HUSH_INSERT_FUNCTIONS
+
+void main()
+{
+    HUSH_INSERT_CODE
+    gl_FragColor = Out_Color;
+}
+/** END FRAGMENT SHADER */
+
+
+/** @hidden */
+class HushedMaterialDefines extends MaterialDefines {
+    /*
+        HUSH_INSERT_ACTIVE_PERMUTATIONS
+    */
+
+    constructor() {
+        super();
+HUSH_IF USED(Vertex_Globals,Normal)||USED(Vertex_Globals,Binormal)||USED(Vertex_Globals,Tangent)
+        this._needNormals = true;
+HUSH_END
+HUSH_IF USED(Vertex_Globals,UV)
+        this._needUVs = true;
+HUSH_END
+        this.rebuild();
+    }
+}
+
+export class HushedMaterial extends PushMaterial {
+    // TODO: Allow access through member variables
+
+    constructor(name: string, scene: Scene) {
+        super(name, scene);
+HUSH_IF MACRO(Alpha_Blend)==1
+        this.alphaMode = Constants.ALPHA_COMBINE;
+HUSH_ELIF MACRO(Alpha_Blend)==2
+        this.alphaMode = Constants.ALPHA_ADD;
+HUSH_ELSE
+        this.alphaMode = Constants.ALPHA_DISABLE;
+HUSH_END
+HUSH_IF MACRO(No_Depth_Write)==1
+        this.disableDepthWrite = true;
+HUSH_END
+        this.backFaceCulling = false;
+    }
+
+    public needAlphaBlending(): boolean {
+HUSH_IF MACRO(Alpha_Blend)==1 || MACRO(Alpha_Blend)==2
+        return true;
+HUSH_ELSE
+        return false;
+HUSH_END
+    }
+
+    public needAlphaTesting(): boolean {
+        return false;
+    }
+
+    public getAlphaTestTexture(): Nullable<BaseTexture> {
+        return null;
+    }
+
+    // Methods
+    public isReadyForSubMesh(mesh: AbstractMesh, subMesh: SubMesh, useInstances?: boolean): boolean {
+        if (this.isFrozen) {
+            if (subMesh.effect && subMesh.effect._wasPreviouslyReady) {
+                return true;
+            }
+        }
+
+        if (!subMesh._materialDefines) {
+            subMesh.materialDefines = new HushedMaterialDefines();
+        }
+
+        const defines = <HushedMaterialDefines>subMesh._materialDefines;
+        const scene = this.getScene();
+
+        if (this._isReadyForSubMesh(subMesh)) {
+            return true;
+        }
+
+        const engine = scene.getEngine();
+
+        // Attribs
+HUSH_IF USED(Vertex_Globals,Color)
+        MaterialHelper.PrepareDefinesForAttributes(mesh, defines, true, false);
+HUSH_ELSE
+        MaterialHelper.PrepareDefinesForAttributes(mesh, defines, false, false);
+HUSH_END
+
+
+        // Get correct effect
+        if (defines.isDirty) {
+            defines.markAsProcessed();
+
+            scene.resetCachedMaterial();
+
+            // Fallbacks
+            const fallbacks = new EffectFallbacks();
+            if (defines.FOG) {
+                fallbacks.addFallback(1, "FOG");
+            }
+
+            MaterialHelper.HandleFallbacksForShadows(defines, fallbacks);
+
+            defines.IMAGEPROCESSINGPOSTPROCESS = scene.imageProcessingConfiguration.applyByPostProcess;
+
+            //Attributes
+            const attribs = [VertexBuffer.PositionKind];
+
+            if (defines.NORMAL) {
+                attribs.push(VertexBuffer.NormalKind);
+            }
+
+            if (defines.UV1) {
+                attribs.push(VertexBuffer.UVKind);
+            }
+
+            if (defines.UV2) {
+                attribs.push(VertexBuffer.UV2Kind);
+            }
+
+            if (defines.VERTEXCOLOR) {
+                attribs.push(VertexBuffer.ColorKind);
+            }
+
+            if (defines.TANGENT) {
+                attribs.push(VertexBuffer.TangentKind);
+            }
+
+            MaterialHelper.PrepareAttributesForInstances(attribs, defines);
+
+            // Legacy browser patch
+            const shaderName = "hushedShader";
+            const join = defines.toString();
+
+            const uniforms = [
+                "world", "worldView", "worldViewProjection", "view", "projection", "viewProjection", "cameraPosition"
+                HUSH_INSERT_UNIFORMS
+HUSH_IF MACRO(Global_Input)==1
+                , "Use_Global_Left_Index", "Use_Global_Right_Index", "Global_Left_Index_Tip_Position", "Global_Right_Index_Tip_Position"
+                , "Global_Left_Thumb_Tip_Position", "Global_Right_Thumb_Tip_Position", "Global_Left_Index_Tip_Proximity", "Global_Right_Index_Tip_Proximity"
+HUSH_END
+            ];
+            const samplers: string[] = [];
+            const uniformBuffers = new Array<string>();
+
+            MaterialHelper.PrepareUniformsAndSamplersList(<IEffectCreationOptions>{
+                uniformsNames: uniforms,
+                uniformBuffersNames: uniformBuffers,
+                samplers: samplers,
+                defines: defines,
+                maxSimultaneousLights: 4
+            });
+
+            subMesh.setEffect(scene.getEngine().createEffect(shaderName,
+                <IEffectCreationOptions>{
+                    attributes: attribs,
+                    uniformsNames: uniforms,
+                    uniformBuffersNames: uniformBuffers,
+                    samplers: samplers,
+                    defines: join,
+                    fallbacks: fallbacks,
+                    onCompiled: this.onCompiled,
+                    onError: this.onError,
+                    indexParameters: { maxSimultaneousLights: 4 }
+                }, engine), defines);
+        }
+        if (!subMesh.effect || !subMesh.effect.isReady()) {
+            return false;
+        }
+
+        defines._renderId = scene.getRenderId();
+        subMesh.effect._wasPreviouslyReady = true;
+
+        return true;
+    }
+
+    public bindForSubMesh(world: Matrix, mesh: Mesh, subMesh: SubMesh): void {
+        const scene = this.getScene();
+
+        const defines = <HushedMaterialDefines>subMesh._materialDefines;
+        if (!defines) {
+            return;
+        }
+
+        const effect = subMesh.effect;
+        if (!effect) {
+            return;
+        }
+
+        this._activeEffect = effect;
+
+        // Matrices
+        this.bindOnlyWorldMatrix(world);
+        this._activeEffect.setMatrix("viewProjection", this.getScene().getTransformMatrix());
+        this._activeEffect.setVector3("cameraPosition", this.getScene().activeCamera!.position);
+        
+        HUSH_INSERT_PARM_UI
+
+HUSH_IF MACRO(Global_Input)==1
+        // Global inputs
+        this._activeEffect.setFloat("Use_Global_Left_Index", 1.0);
+        this._activeEffect.setFloat("Use_Global_Right_Index", 1.0);
+
+        this._activeEffect.setVector4("Global_Left_Index_Tip_Position", new Vector4(0.5, 0.0, -0.55, 1.0));
+        this._activeEffect.setVector4("Global_Right_Index_Tip_Position", new Vector4(0.0, 0.0, 0.0, 1.0));
+
+        this._activeEffect.setVector4("Global_Left_Thumb_Tip_Position", new Vector4(0.5, 0.0, -0.55, 1.0));
+        this._activeEffect.setVector4("Global_Right_Thumb_Tip_Position", new Vector4(0.0, 0.0, 0.0, 1.0));
+
+        this._activeEffect.setFloat("Global_Left_Index_Tip_Proximity", 0.0);
+        this._activeEffect.setFloat("Global_Right_Index_Tip_Proximity", 0.0);
+HUSH_END
+
+        this._afterBind(mesh, this._activeEffect);
+    }
+
+    /**
+     * Get the list of animatables in the material.
+     * @returns the list of animatables object used in the material
+     */
+    public getAnimatables(): IAnimatable[] {
+        return [];
+    }
+
+    public dispose(forceDisposeEffect?: boolean): void {
+        super.dispose(forceDisposeEffect);
+    }
+
+    public clone(name: string): HushedMaterial {
+        return SerializationHelper.Clone(() => new HushedMaterial(name, this.getScene()), this);
+    }
+
+    public serialize(): any {
+        const serializationObject = SerializationHelper.Serialize(this);
+        serializationObject.customType = "BABYLON.HushedMaterial";
+        return serializationObject;
+    }
+
+    public getClassName(): string {
+        return "HushedMaterial";
+    }
+
+    // Statics
+    public static Parse(source: any, scene: Scene, rootUrl: string): HushedMaterial {
+        return SerializationHelper.Parse(() => new HushedMaterial(source.name, scene), source, scene, rootUrl);
+    }
+}
+
+_TypeStore.RegisteredTypes["BABYLON.GUI.HushedMaterial"] = HushedMaterial;
