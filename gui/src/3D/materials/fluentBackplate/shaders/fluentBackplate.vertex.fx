@@ -183,13 +183,13 @@ void Move_Verts_B26(
     out float Radial_Gradient,
     out vec3 Radial_Dir)
 {
-    vec2 UV = P.xy * 2 + 0.5;
+    vec2 UV = P.xy * 2.0 + 0.5;
     vec2 center = clamp(UV, 0.0, 1.0);
     vec2 delta = UV - center;
             
     vec2 r2 = 2.0 * vec2(Radius / Anisotropy, Radius);
             
-    New_UV = center + r2 * (UV - 2 * center + 0.5);
+    New_UV = center + r2 * (UV - 2.0 * center + 0.5);
     New_P = vec3(New_UV - 0.5, P.z);
             
     Radial_Gradient = 1.0 - length(delta) * 2.0;
@@ -245,14 +245,14 @@ void Edge_AA_Vertex_B27(
 {
     // main code goes here
     vec3 I = (Eye-Position_World);
-    vec3 T = (transpose(w2o_matrix4)* vec4(Tangent,0.0)).xyz;
+    vec3 T = (transpose(world)* vec4(Tangent,0.0)).xyz;
     float g = (dot(T,I)<0.0) ? 0.0 : 1.0;
-    if (Normal_Object.z==0) { // edge
+    if (Normal_Object.z==0.0) { // edge
         //vec3 T = Position_Object.z>0.0 ? vec3(0.0,0.0,1.0) : vec3(0.0,0.0,-1.0);
         Gradient1 = Position_Object.z>0.0 ? g : 1.0;
         Gradient2 = Position_Object.z>0.0 ? 1.0 : g;
     } else {
-    //    vec3 R = (transpose(w2o_matrix4)* vec4(Tangent,0.0)).xyz; //Radial_Dir);
+    //    vec3 R = (transpose(world)* vec4(Tangent,0.0)).xyz; //Radial_Dir);
     //    float k = (dot(R,I)>0.0 ? 1.0 : 0.0);
     //    float kk = dot(normalize(R),normalize(I));
     //    float k =  kk>0.0 ? kk*Edge_Bend : 0.0;
@@ -274,8 +274,8 @@ void Pick_Radius_B41(
     vec3 Position,
     out float Result)
 {
-    bool whichY = Position.y>0;
-    Result = Position.x<0 ? (whichY ? Radius_Top_Left : Radius_Bottom_Left) : (whichY ? Radius_Top_Right : Radius_Bottom_Right);
+    bool whichY = Position.y>0.0;
+    Result = Position.x<0.0 ? (whichY ? Radius_Top_Left : Radius_Bottom_Left) : (whichY ? Radius_Top_Right : Radius_Bottom_Right);
     Result *= Radius;
 }
 //BLOCK_END Pick_Radius
@@ -305,11 +305,11 @@ void main()
 
     // Conditional (#74)
     vec3 Result_Q74;
-    Result_Q74 = _Use_Global_Left_Index_ ? Global_Left_Index_Tip_Position.xyz : _Blob_Position_;
+    Result_Q74 = mix(_Blob_Position_, Global_Left_Index_Tip_Position.xyz, float(_Use_Global_Left_Index_));
     
     // Conditional (#75)
     vec3 Result_Q75;
-    Result_Q75 = _Use_Global_Right_Index_ ? Global_Right_Index_Tip_Position.xyz : _Blob_Position_2_;
+    Result_Q75 = mix(_Blob_Position_2_, Global_Right_Index_Tip_Position.xyz, float(_Use_Global_Right_Index_));
     
     float Result_Q41;
     Pick_Radius_B41(_Radius_,_Radius_Top_Left_,_Radius_Top_Right_,_Radius_Bottom_Left_,_Radius_Bottom_Right_,position,Result_Q41);
@@ -352,18 +352,18 @@ void main()
     #if SMOOTH_EDGES
       Edge_AA_Vertex_B27(Pos_World_Q12,position,normal,cameraPosition,Radial_Gradient_Q26,Radial_Dir_Q26,tangent,Gradient1_Q27,Gradient2_Q27);
     #else
-      Gradient1_Q27 = 1;
-      Gradient2_Q27 = 1;
+      Gradient1_Q27 = 1.0;
+      Gradient2_Q27 = 1.0;
     #endif
 
     vec2 Rect_UV_Q36;
     vec4 Rect_Parms_Q36;
     vec2 Scale_XY_Q36;
     vec2 Line_UV_Q36;
-    Round_Rect_Vertex_B36(New_UV_Q26,Radius_Q44,0,Anisotropy_Q30,Gradient1_Q27,Gradient2_Q27,Rect_UV_Q36,Rect_Parms_Q36,Scale_XY_Q36,Line_UV_Q36);
+    Round_Rect_Vertex_B36(New_UV_Q26,Radius_Q44,0.0,Anisotropy_Q30,Gradient1_Q27,Gradient2_Q27,Rect_UV_Q36,Rect_Parms_Q36,Scale_XY_Q36,Line_UV_Q36);
 
     vec3 Line_Vertex_Q32;
-    Line_Vertex_B32(Scale_XY_Q36,Line_UV_Q36,(huxTime*20.0),_Rate_,_Highlight_Transform_,Line_Vertex_Q32);
+    Line_Vertex_B32(Scale_XY_Q36,Line_UV_Q36,0.0,_Rate_,_Highlight_Transform_,Line_Vertex_Q32);
 
     vec3 Position = Pos_World_Q12;
     vec3 Normal = Dir_Q37;

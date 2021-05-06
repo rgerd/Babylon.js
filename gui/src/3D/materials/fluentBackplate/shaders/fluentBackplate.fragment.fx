@@ -156,7 +156,11 @@ void main()
 
     vec4 Blob_Color_Q71;
     #if BLOB_ENABLE
-      Blob_Fragment_B71(_Blob_Texture_,vExtra2,vExtra3,Blob_Color_Q71);
+      // Blob_Fragment_B71(_Blob_Texture_,vExtra2,vExtra3,Blob_Color_Q71);
+      float k1 = dot(vExtra2.xy,vExtra2.xy);
+      float k2 = dot(vExtra3.xy,vExtra3.xy);
+      vec3 closer = k1<k2 ? vec3(k1,vExtra2.z,vExtra2.w) : vec3(k2,vExtra3.z,vExtra3.w);
+      Blob_Color_Q71 = closer.z * texture(_Blob_Texture_,vec2(vec2(sqrt(closer.x),closer.y).x,1.0-vec2(sqrt(closer.x),closer.y).y))*clamp(1.0-closer.x, 0.0, 1.0);
     #else
       Blob_Color_Q71 = vec4(0,0,0,0);
     #endif
@@ -192,7 +196,7 @@ void main()
     float Product_Q64 = Result_Q38 * _Frequency_;
 
     // Add (#69)
-    float Sum_Q69 = Product_Q64 + 1;
+    float Sum_Q69 = Product_Q64 + 1.0;
 
     // Multiply (#70)
     float Product_Q70 = Sum_Q69 * 0.5;
@@ -229,13 +233,13 @@ void main()
     Base_And_Iridescent_Q56 = _Base_Color_ + vec4(Result_Q55.rgb,0.0);
     
     // Set_Alpha (#52)
-    vec4 Result_Q52 = Base_And_Iridescent_Q53; Result_Q52.a = 1;
+    vec4 Result_Q52 = Base_And_Iridescent_Q53; Result_Q52.a = 1.0;
 
     // Blend_Over (#35)
     vec4 Result_Q35 = Blob_Color_Q71 + (1.0 - Blob_Color_Q71.a) * Base_And_Iridescent_Q56;
 
     vec4 Color_Q31;
-    Round_Rect_Fragment_B31(R_Q72,G_Q72,Result_Q52,_Filter_Width_,vUV,1,vExtra1,Result_Q35,Color_Q31);
+    Round_Rect_Fragment_B31(R_Q72,G_Q72,Result_Q52,_Filter_Width_,vUV,1.0,vExtra1,Result_Q35,Color_Q31);
 
     // Scale_Color (#47)
     vec4 Result_Q47 = _Fade_Out_ * Color_Q31;
